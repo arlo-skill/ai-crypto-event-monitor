@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "updated_at": null,
+  "source": "尚未收到用户持仓报告",
+  "allocation_basis": null,
+  "allocation_basis_label": "待用户确认比例分母",
+  "account": {
+    "equity": null,
+    "currency": null,
+    "available_cash": null,
+    "max_acceptable_loss": null,
+    "holding_horizon": null
+  },
+  "positions": [],
+  "orders": [],
+  "updates": [],
+  "recording_policy": "用户在对话中报告，AI 更新；网页只读；触价不是成交。",
+  "missing_information": [
+    "实际持仓、均价、仓位分母、未成交挂单与风险预算"
+  ]
+}

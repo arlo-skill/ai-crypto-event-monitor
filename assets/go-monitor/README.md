@@ -98,3 +98,21 @@ go vet ./...
 ```
 
 测试使用模拟 CLI 和虚构 UUID，不发送真实消息。用户环境还需核验行情、CLI 回执和任务 ACK。短时联通不能证明长期稳定，规则测试也不能证明策略收益。
+
+## 只读网页与持仓台账
+
+网页由同一个 Go 程序提供，支持多个独立币种监控的总览、完整规则/消息模板、触发记录、已确认持仓和未成交挂单。网页只有查看入口，也没有写入 API；用户在对话中告知 AI，AI 更新台账后自动推送到页面。
+
+首次使用公开模板时：
+
+```sh
+cp config/portfolio.example.json config/portfolio.local.json
+cp config/dashboard.example.json config/dashboard.json
+./bin/niu-monitor dashboard --config config/dashboard.json --listen 127.0.0.1:8788
+```
+
+运行后打开 **http://127.0.0.1:8788**（仅当前电脑）。`dashboard.json` 的每个 `config_file` 指向一个币种的监控配置，各币必须使用不同的 `state_file`；dry-run 配置读取独立的 `.dry-run.json` 状态。网页本身不启动行情监控和模型调用；需按已有授权分别启动各币监控。部署 AI 必须实际打开页面验证，再把真实运行网址交给用户，不以示例地址代替验收。
+
+持仓字段未知时保留 null，记录比例分母、确认时间及更新历史；未成交订单不能算入持仓，也不能当成不占资金。不要把账户比例推导成缺失的币数量。台账、规则和状态每秒统一读取一次；多开页面共享采集，最多 100 个 SSE 连接，慢连接只保留最新状态，隐藏页面停止订阅，每币最多显示最近 30 条事件。登记文件增删币种后重启网页服务，单币监控规则修改后须重启对应监控服务并保留原状态。
+
+回环监听、Host/Origin 检查、只读方法限制适用于本机访问；需要远程访问时另行设计认证，勿直接公开用户持仓。台账更新与前端部署规范见技能的 [portfolio-dashboard.md](../../references/portfolio-dashboard.md)。

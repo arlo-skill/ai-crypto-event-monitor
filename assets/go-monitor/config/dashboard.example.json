@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "portfolio_file": "portfolio.local.json",
+  "monitors": [
+    {
+      "id": "niu",
+      "config_file": "monitor.json"
+    }
+  ]
+}

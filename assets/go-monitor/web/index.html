@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>观测台 · 现货监控</title><link rel="stylesheet" href="/style.css"><script src="/app.js" defer></script></head>
+<body>
+<aside class="sidebar"><a class="brand" href="/"><span class="brand-icon">◈</span>观测台<span class="brand-en">SPOT WATCH</span></a><div class="side-label">我的观察空间</div><nav aria-label="页面导航"><button class="nav active" data-tab="overview"><span>◉</span>总览</button><button class="nav" data-tab="rules"><span>⌘</span>监控规则 <b id="nav-rules">—</b></button><button class="nav" data-tab="events"><span>◷</span>触发记录 <b id="nav-events">—</b></button></nav><div class="sidebar-bottom"><span class="local-dot"></span> 本机私有 · 只读<p>你在对话中告知，AI 记录。<br>在这里核对每一次变化。</p></div></aside>
+<main><header><div class="breadcrumb">我的账户 <span>/</span> 现货观察</div><div id="connection" class="badge waiting"><i></i>正在连接</div></header>
+<div class="page-title"><div><p class="eyebrow">YOUR MARKET, IN VIEW</p><h1 id="page-title">现货监控</h1><p class="subtitle" id="page-subtitle">行情持续观察，仓位以你的成交确认为准。</p></div><div class="date">最近同步<span id="last-sync">—</span></div></div>
+<div id="global-error" class="notice error" hidden></div>
+<section id="overview" class="view">
+<div class="summary-grid" id="summary"><div class="loading-card">正在读取账户记录…</div></div>
+<div class="section-heading"><h2>正在观察 <span id="monitor-count"></span></h2><span class="muted">Binance 现货 · USDT</span></div><div id="markets" class="market-grid"></div>
+<section class="panel portfolio-panel"><div class="panel-heading"><div><h2>持仓与挂单</h2><p>成交、挂单分开记录，每一成均以整个账户为分母。</p></div><span class="badge neutral">由对话更新</span></div><div id="allocation"></div><div class="table-scroll"><table><thead><tr><th>资产 / 状态</th><th>账户占比</th><th>成本 / 挂单价</th><th>最近确认</th></tr></thead><tbody id="positions"></tbody></table></div><div class="panel-foot">记录有误或订单状态变化时，请在当前 Codex 对话告诉 AI。网页不提供手动录入，也不会把价格触及当作成交。</div></section>
+<div class="bottom-grid"><section class="panel"><div class="panel-heading"><h2>最近触发</h2><button class="text-button" data-tab="events">查看全部 →</button></div><div id="recent-events"></div></section><section class="panel"><div class="panel-heading"><h2>记录更新</h2><span class="muted">用户确认</span></div><div id="updates"></div></section></div>
+<div class="notice" id="missing"></div>
+</section>
+<section id="rules" class="view" hidden><div class="notice">观察价位用于唤醒研究。达到阈值后，还要通过连续确认、冷却及防重复检查；不等于建仓、加仓或减仓指令。</div><div id="rule-list"></div></section>
+<section id="events" class="view" hidden><div class="notice">“已提交”表示 Codex 接受消息排队，不代表分析完成。只展示正式监控状态内最近的事件，合成测试独立保存。</div><div id="event-list"></div></section>
+<footer>本机运行 · 无事件时不调用 AI <span>仅现货研究与建议，交易由你确认执行</span></footer>
+</main></body></html>

@@ -2,7 +2,7 @@
 
 让本地程序持续监听行情，在规则命中后才调用 Codex 开展研究。无事件时不调用 AI，避免通过固定时间唤醒模型来检查价格。
 
-本技能涵盖监控程序开发、可查询规则、持久化防重、Codex CLI 事件触发，以及市场、链上、资金流和新闻热度核验。附带可编译的 Go 模板，默认 dry-run，没有交易执行功能。
+本技能涵盖监控程序开发、可查询规则、持久化防重、Codex CLI 事件触发，以及市场、链上、资金流和新闻热度核验。附带可编译的 Go 模板和只读网页，支持用户通过对话维护持仓与挂单。默认 dry-run，没有交易执行功能。
 
 技能入口：[SKILL.md](SKILL.md)。技能名称：`ai-crypto-event-monitor`。
 
@@ -31,6 +31,7 @@ npx --yes skills@latest list --global --agent codex
 ## 适用场景
 
 - **事件驱动盯盘**：价格进入观察区、向上/向下穿越、持续站稳、指定窗口快速涨跌。
+- **只读观测台**：集中查看实时行情、运行状态、触发记录及持仓/挂单；用户在对话中告知，AI 维护记录，网页不提供录入入口。
 - **规则管理**：查询规则、阈值、确认条件、冷却时间及完整消息模板。
 - **运行排查**：分析 WebSocket 断流、REST 回退、陈旧行情、重复事件、CLI 提交失败和未知发送状态。
 - **触发后研究**：核验市场条件、同合约 DEX 流动性、链上转账与巨鲸、成交方向、新闻和热度，说明事实、反证及缺口。
@@ -39,7 +40,7 @@ npx --yes skills@latest list --global --agent codex
 
 创建监控时：
 
-> 使用 $ai-crypto-event-monitor，在当前工作区为我关注的 Binance 现货交易对创建 Go 监控器。先核验准确 symbol 和本机 Codex CLI，提供规则查询、完整模板与合成测试，先验证 dry-run，再按已授权范围验证一次真实消息提交。
+> 使用 $ai-crypto-event-monitor，在当前工作区为我关注的 Binance 现货交易对创建 Go 监控器。先核验准确 symbol 和本机 Codex CLI，提供规则查询、完整模板与合成测试，先验证 dry-run，再按已授权范围验证一次真实消息提交。提供只读监控网页，部署后实际打开验收，并把可点击的运行网址交给我。
 
 维护已有监控时：
 
@@ -58,7 +59,9 @@ npx --yes skills@latest list --global --agent codex
 | 行情 | Binance 现货 aggTrade WebSocket、ping/pong、断线退避、REST 新成交回退 |
 | 规则 | below、above、cross_below、cross_above、hold_below、hold_above、pct_drop、pct_rise |
 | 确认与防重 | 精确小数、连续成交/持续时间、迟滞、cooldown、状态锁、原子写入 |
-| CLI | 规则列表、完整模板、配置校验、行情查询、状态、合成测试、dry-run、正式监听 |
+| CLI | 规则列表、完整模板、配置校验、行情查询、状态、合成测试、dry-run、正式监听、网页服务 |
+| 网页 | 多币总览、规则/消息模板、触发记录、持仓/挂单；本机只读 SSE 推送、有界连接、隐藏页停止订阅 |
+| 台账 | 用户通过对话确认后由 AI 更新，区分持仓/挂单/部分成交，保留比例分母、成本币种、确认时间和变更历史 |
 | Codex | 现场探测接口；兼容时使用 queue，否则使用经探测的非交互 exec-resume |
 | 限额与恢复 | 单发送进程、有界队列、提交频率/每日上限、事件过期、未知结果不自动重发 |
 
@@ -75,6 +78,16 @@ go build -o bin/niu-monitor .
 ./bin/niu-monitor validate
 ```
 
+启动只读网页：
+
+```bash
+cp config/portfolio.example.json config/portfolio.local.json
+cp config/dashboard.example.json config/dashboard.json
+./bin/niu-monitor dashboard --config config/dashboard.json --listen 127.0.0.1:8788
+```
+
+在运行程序的电脑打开 [本机观测台](http://127.0.0.1:8788)。网页本身不启动行情监听；尚未启动监控时会明确显示暂无运行状态。AI 实际部署时应核验真实监听地址、页面数据和只读限制，再交付运行网址。
+
 后续步骤见 [Go 模板使用说明](assets/go-monitor/README.md)。一行安装只安装技能文件，不会自动编译 Go 程序。
 
 ## 文件导航
@@ -83,6 +96,7 @@ go build -o bin/niu-monitor .
 |---|---|
 | [SKILL.md](SKILL.md) | 工作方法、CLI 探测、事件验证及安全边界 |
 | [实现说明](references/implementation.md) | 模板接入、规则语义、恢复与验证 |
+| [持仓与网页规范](references/portfolio-dashboard.md) | 用户确认记录、现货建议、只读页面、并发和运行网址交付 |
 | [研究规范](references/research.md) | 市场、链上、资金流、新闻热度的证据口径 |
 | [Go 模板](assets/go-monitor/README.md) | 可编译程序、独立配置与测试 |
 | [示例配置](assets/go-monitor/config/monitor.json) | 交易对、阈值、限额与完整消息模板 |
@@ -90,7 +104,7 @@ go build -o bin/niu-monitor .
 
 ## 验证与边界
 
-模板有 18 个顶层测试及 8 个触发类型子测试，覆盖规则、数据质量、状态恢复、进程参数、WebSocket、REST 与限流。开发时曾验证真实行情接收、REST 回退，以及合成价格触发后由 Codex 目标任务返回 ACK；使用者仍需在自己的环境重新核验。
+模板有 21 个顶层测试及 8 个触发类型子测试，覆盖规则、数据质量、状态恢复、进程参数、WebSocket、REST、限流、只读接口、陈旧状态、台账损坏及 100 客户端的有界推送。开发时曾验证真实行情接收、REST 回退，以及合成价格触发后由 Codex 目标任务返回 ACK；使用者仍需在自己的环境重新核验。
 
 ```bash
 cd assets/go-monitor

@@ -44,6 +44,7 @@ func usage() {
   niu-monitor run      --config config/monitor.json [--dry-run | --send] [--duration 30s] [--state PATH]
   niu-monitor test     --config config/monitor.json --rule ID --prices 0.12,0.118,0.117 [--step 1s] [--send] [--state PATH]
   niu-monitor resolve  --config config/monitor.json --send --event ID --note "receipt checked" [--state PATH]
+  niu-monitor dashboard --config config/dashboard.json [--listen 127.0.0.1:8788]
 
 Rules/template/status are local reads. Doctor runs only CLI help and public market reads.
 Test uses synthetic prices and an isolated state; --send submits an ACK-only test message.
@@ -57,6 +58,9 @@ func cli(args []string) error {
 		return nil
 	}
 	command := args[0]
+	if command == "dashboard" {
+		return dashboardCLI(args[1:])
+	}
 	f := flag.NewFlagSet(command, flag.ContinueOnError)
 	configPath := f.String("config", "config/monitor.json", "config JSON path")
 	ruleID := f.String("rule", "", "rule id")
