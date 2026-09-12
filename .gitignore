@@ -1,0 +1,8 @@
+.DS_Store
+**/bin/
+**/runtime/
+**/evidence/
+**/config/*.local.json
+*.log
+*.lock
+.state-*

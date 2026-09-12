@@ -1,0 +1,4 @@
+interface:
+  display_name: "AI 虚拟币事件监控"
+  short_description: "用事件驱动脚本监控虚拟币并触发 Codex 开展市场与链上核验"
+  default_prompt: "使用 $ai-crypto-event-monitor 创建或调整事件驱动的虚拟币监控，先读取规则与状态，再验证价格到 Codex CLI 的闭环。"
