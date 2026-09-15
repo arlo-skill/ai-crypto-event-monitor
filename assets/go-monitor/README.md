@@ -94,6 +94,7 @@ WS 断开会退避重连；默认 15 秒无有效 WS 新成交时，REST 每 5 �
 
 ```sh
 go test -race ./...
+node tests/dashboard-portfolio.cjs
 go vet ./...
 ```
 
